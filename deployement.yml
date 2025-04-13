@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-deployment
+  namespace: my-jenkins
+  labels:
+    app: jenkins-set
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: jenkins-set
+  template:
+    metadata:
+      labels:
+        app: jenkins-set
+    spec:
+      volumes:
+        - name: jenkins-vol
+          hostPath:
+            path: /mnt/efs
+            type: Directory
+      containers:
+      - name: jenkins
+        image: jenkins/jenkins:latest
+        volumeMounts:
+          - mountPath: /var/jenkins_home
+            name: jenkins-vol
+        ports:
+        - containerPort: 8080
